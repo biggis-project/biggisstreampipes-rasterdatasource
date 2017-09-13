@@ -10,7 +10,7 @@ import play.api.libs.json.Json
   * Created by Jochen Lutz on 2017-09-10.
   */
 class JsonInlineRasterdataEncoder(aTopic: String) extends BaseRasterdataEncoder(aTopic) {
-  val kafkaTopic = aTopic
+  val kafkaTopic = aTopic + ".inline"
 
   override def encodeMessage(file: File): ProducerRecord[String, String] = {
     val b64 = Base64.getEncoder.encodeToString(getFileContent(file))
