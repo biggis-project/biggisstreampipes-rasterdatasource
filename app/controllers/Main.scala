@@ -56,6 +56,8 @@ class Main @Inject() (components: ControllerComponents, configuration: play.api.
   def startSource: Action[AnyContent] = Action { request: Request[AnyContent] =>
     val json = request.body.asJson
 
+    val baseUrl = (if (request.secure) "https://" else "http://") + request.host + "/"
+
     val startIndex = json match {
       case Some(js: JsObject) => (js \ "startIndex").asOpt[Int].getOrElse(1)
       case default => 1
@@ -79,14 +81,19 @@ class Main @Inject() (components: ControllerComponents, configuration: play.api.
 
     val tiles = messagesCache(serializerType) match {
       case Some(m: Map[String, Option[Array[ProducerRecord[String, String]]]]) => {
-        val messages = buildTileMessages(tileset, serializerType)
+        m(tileset) match {
+          case Some(messages: Array[ProducerRecord[String, String]]) => Some(messages)
+          case default => {
+            val messages = buildTileMessages(tileset, serializerType, baseUrl)
 
-        m += tileset -> messages
+            m += tileset -> messages
 
-        messages
+            messages
+          }
+        }
       }
       case default => {
-        val messages = buildTileMessages(tileset, serializerType)
+        val messages = buildTileMessages(tileset, serializerType, baseUrl)
 
         messagesCache += serializerType -> Some(scala.collection.mutable.Map(tileset -> messages))
 
@@ -94,7 +101,6 @@ class Main @Inject() (components: ControllerComponents, configuration: play.api.
       }
     }
 
-    //val fastTiles = buildTileMessages(tileset, serializerType)
     tiles match {
       case Some(x) => {
         for (i <- startIndex to endIndex) {
@@ -133,8 +139,8 @@ class Main @Inject() (components: ControllerComponents, configuration: play.api.
     return None
   }
 
-  def buildTileMessages(tileset: String, serializer: String): Option[Array[ProducerRecord[String, String]]] = {
-    val ser = RasterdataEncoderFactory(serializer, kafkaTopic)
+  def buildTileMessages(tileset: String, serializer: String, baseUrl: String): Option[Array[ProducerRecord[String, String]]] = {
+    val ser = RasterdataEncoderFactory(serializer, kafkaTopic, baseUrl)
 
     val files = readAllFiles(tileset)
 
