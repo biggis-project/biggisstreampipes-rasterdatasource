@@ -23,6 +23,6 @@ class JsonInlineRasterdataEncoder(aTopic: String) extends BaseRasterdataEncoder(
       "raster-data" -> b64
     )
 
-    return new ProducerRecord(kafkaTopic, "raster-data-test-2", json.toString())
+    return new ProducerRecord(kafkaTopic, json.toString())
   }
 }

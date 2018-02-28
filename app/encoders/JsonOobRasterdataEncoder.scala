@@ -20,6 +20,6 @@ class JsonOobRasterdataEncoder(aTopic: String, aBaseUrl: String) extends BaseRas
       "raster-data-location" -> (baseUrl + file.getPath)
     )
 
-    return new ProducerRecord(kafkaTopic, "raster-data-test-2", json.toString())
+    return new ProducerRecord(kafkaTopic, json.toString())
   }
 }

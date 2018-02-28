@@ -12,3 +12,5 @@ libraryDependencies ++= Seq(
 )
 
 routesGenerator := InjectedRoutesGenerator
+
+assemblyJarName in assembly := "rasterdata-source.jar"
