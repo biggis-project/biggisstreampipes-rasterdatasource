@@ -14,3 +14,10 @@ libraryDependencies ++= Seq(
 routesGenerator := InjectedRoutesGenerator
 
 assemblyJarName in assembly := "rasterdata-source.jar"
+
+assemblyMergeStrategy in assembly := {
+  case PathList("play", "reference-overrides.conf") => MergeStrategy.first
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
